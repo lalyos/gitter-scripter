@@ -1,6 +1,13 @@
 [![](https://images.microbadger.com/badges/image/lalyos/gitter-scripter.svg)](https://microbadger.com/images/lalyos/gitter-scripter "Get your own image badge on microbadger.com")
 [![Docker Automated build](https://img.shields.io/docker/automated/lalyos/gitter-scripter.svg)](https://hub.docker.com/r/lalyos/gitter-scripter)
 
+This is a simple webapp authenticates with gitter oauth (github/gitlab/twitter).
+Once authentication is done, it calles out a bash script. The default one:
+- joins a central room
+- sends a welcome message
+- does some kubectl magic
+This is all [k8s workshop specific](https://github.com/lalyos/k8s-workshop)
+
 ## create a gitter oauth application
 
 On gitter's developer site [create new app](https://developer.gitter.im/apps/new)
@@ -25,3 +32,10 @@ Now you can create all the k8s resources:
 ```
 kubectl apply -f http://...
 ```
+
+## roadmap
+
+muhaha
+
+- [ ] custom script from web form
+- [ ] several modular script, probably with [plugn](https://github.com/dokku/plugn) or [pluginhook](https://github.com/progrium/pluginhook)
