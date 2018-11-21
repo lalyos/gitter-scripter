@@ -30,7 +30,7 @@ Now you can create all the k8s resources:
 - ingress
 
 ```
-kubectl apply -f http://...
+kubectl apply -f https://raw.githubusercontent.com/lalyos/gitter-scripter/master/gitter.yaml
 ```
 
 ## roadmap
