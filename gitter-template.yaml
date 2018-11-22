@@ -14,7 +14,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: gitter
-  namespace: default  
+  namespace: ${workshopNamespace}
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
