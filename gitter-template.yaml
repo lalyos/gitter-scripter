@@ -62,7 +62,6 @@ spec:
     spec:
       serviceAccountName: gitter 
       containers:
-      #- image: eu.gcr.io/involuted-smile-221511/gitter
       - image: lalyos/gitter-scripter
         name: gitter
         env:
