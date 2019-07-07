@@ -46,28 +46,39 @@ joinRoom() {
       &> /dev/null
 }
 
+# get assigned or assign new deployment
 if ! deployment=$(kubectl get deployments -l ghuser=${GITTER_USER} -o jsonpath='{.items[0].metadata.name}' 2>/dev/null); then
   debug "no session assigned to ${GITTER_USER} ..."
 
   nextUnassigned=$(kubectl get deployments -l 'user,!ghuser' -o jsonpath='{.items[0].metadata.name}')
   debug nextUnassigned=$nextUnassigned
   deployment="${nextUnassigned}"
-  pod=$(kubectl get po -lrun=${deployment} -o jsonpath='{.items[0].metadata.name}')
-  debug pod=$pod
-  rndPath=$(kubectl logs ${pod} |sed -n '/HTTP server is listening at/ s/.*:8080//p')
-  debug rndPath=$rndPath
-
-  # deletes "session." prefix from authRedirectUrl's domain
-  url="http://${deployment}.${DOMAIN#session.}${rndPath}"
-  debug url=$url
-
-  kubectl annotate deployment $deployment --overwrite sessionurl=$url
-  kubectl label deployment $deployment --overwrite ghuser=${GITTER_USER} 
+  kubectl label deployment $deployment --overwrite ghuser=${GITTER_USER} &>/dev/null
 fi
+
+pod=$(kubectl get po -lrun=${deployment} -o jsonpath='{.items[0].metadata.name}')
+debug pod=$pod
+
+rndPath=$(kubectl logs ${pod} |sed -n '/HTTP server is listening at/ s/.*:8080//p')
+debug rndPath=$rndPath
+
+# deletes "session." prefix from authRedirectUrl's domain
+url="http://${deployment}.${DOMAIN#session.}${rndPath}"
+debug url=$url
+
+kubectl annotate deployment $deployment --overwrite sessionurl=$url &> /dev/null
+
+
+externalip=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type == "ExternalIP")].address}') 
+nodePort=$(kubectl get svc ${deployment} -o jsonpath="{.spec.ports[0].nodePort}")
+sessionUrlNodePort="http://${externalip}:${nodePort}${rndPath}"
+kubectl annotate deployments ${deployment} --overwrite sessionurlnp=${sessionUrlNodePort} &>/dev/null
 
 joinRoom
 
 sessionUrl=$(kubectl get deployments $deployment -o jsonpath='{.metadata.annotations.sessionurl}')
 cat << EOF
-<a href="${sessionUrl}">web session - ${deployment} [$GITTER_USER]</a>
+<p/><a href='https://gitter.im/${GITTER_ROOM_NAME}' >Open GITTER chat</a>
+<p/><a href="${sessionUrl}">web session - ${deployment} [Ingress]</a>
+<p/><a href="${sessionUrlNodePort}">web session - ${deployment} [NodePort]</a>
 EOF

@@ -30,6 +30,7 @@ Now you can create all the k8s resources:
 - ingress
 
 ```
+export workshopNamespace
 export domain=mydomain.com
 curl -sL https://raw.githubusercontent.com/lalyos/gitter-scripter/master/gitter-template.yaml \
   | envsubst \
